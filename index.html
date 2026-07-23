@@ -735,14 +735,16 @@
     function updateSlider() {
       pesanTrack.style.transform = `translateX(-${sliderIdx * cardWidth()}px)`;
     }
-    $('nextBtn').addEventListener('click', () => {
-      sliderIdx = Math.min(sliderIdx + 1, pesanData.length - 1);
-      updateSlider();
-    });
-    $('prevBtn').addEventListener('click', () => {
-      sliderIdx = Math.max(sliderIdx - 1, 0);
-      updateSlider();
-    });
+   $('nextBtn').addEventListener('click', () => {
+  sliderIdx = Math.min(sliderIdx + 1, pesanData.length - 1);
+  updateSlider();
+  startPesanAuto();
+});
+$('prevBtn').addEventListener('click', () => {
+  sliderIdx = Math.max(sliderIdx - 1, 0);
+  updateSlider();
+  startPesanAuto();
+});
 
     let pesanAutoTimer = null;
 function startPesanAuto() {
