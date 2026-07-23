@@ -169,6 +169,7 @@
     .slider-controls { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
     .slider-btn { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--amber); background: transparent; color: var(--amber); cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
     .slider-btn:hover { background: var(--amber); color: var(--white); }
+    .slider-btn:disabled { opacity: 0.35; cursor: not-allowed; }
     #penutup { background: var(--deep-brown); text-align: center; padding: 100px 5vw 80px; position: relative; overflow: hidden; }
     #penutup::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(212,134,10,0.12) 0%, transparent 70%); }
     #penutup .section-title { color: var(--soft-gold); font-size: clamp(2.5rem, 5vw, 4.5rem); }
@@ -739,6 +740,22 @@
       pesanTrack.appendChild(card);
     });
 
+// ===== SLIDER PESAN (tombol prev/next) =====
+function getPesanScrollStep() {
+  const card = pesanTrack.querySelector('.pesan-card');
+  if (!card) return 300;
+  const gap = parseFloat(getComputedStyle(pesanTrack).columnGap || getComputedStyle(pesanTrack).gap) || 24;
+  return card.offsetWidth + gap;
+}
+
+$('nextBtn').addEventListener('click', () => {
+  pesanTrack.scrollBy({ left: getPesanScrollStep(), behavior: 'smooth' });
+});
+
+$('prevBtn').addEventListener('click', () => {
+  pesanTrack.scrollBy({ left: -getPesanScrollStep(), behavior: 'smooth' });
+});
+    
     // ===== LIGHTBOX GALERI: buka, navigasi, geser (swipe) =====
     let currentAlbum = null;
     let currentPhotoIdx = 0;
