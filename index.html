@@ -150,7 +150,7 @@
     .timeline-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--soft-gold); margin-bottom: 0.4rem; }
     .timeline-desc { font-size: 0.9rem; color: rgba(253,246,236,0.65); line-height: 1.6; }
     #pesan { background: #f9f0e3; }
-    .pesan-slider { position: relative; overflow: hidden; }
+    .pesan-slider { position: relative; overflow: hidden; touch-action: pan-y; }
     .pesan-track { display: flex; gap: 1.5rem; transition: transform 0.5s cubic-bezier(.4,0,.2,1); will-change: transform; }
     .pesan-card { min-width: 300px; flex-shrink: 0; background: var(--white); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); position: relative; }
     .pesan-card::before { content: '"'; font-family: 'Playfair Display', serif; font-size: 5rem; line-height: 1; color: var(--amber); opacity: 0.15; position: absolute; top: 0.5rem; left: 1rem; }
@@ -329,7 +329,7 @@
   <section id="pesan">
     <p class="section-label reveal">Pesan & Kesan</p>
     <h2 class="section-title reveal">Kata-Kata dari<br/>Hati yang Tulus</h2>
-    <div class="pesan-slider reveal">
+   <div class="pesan-slider reveal" id="pesanSlider">
       <div class="pesan-track" id="pesanTrack"></div>
       <div class="slider-controls">
         <button class="slider-btn" id="prevBtn">&#8592;</button>
@@ -744,10 +744,54 @@
       updateSlider();
     });
 
-    setInterval(() => {
-      sliderIdx = (sliderIdx + 1) % pesanData.length;
-      updateSlider();
-    }, 4500);
+    let pesanAutoTimer = null;
+function startPesanAuto() {
+  stopPesanAuto();
+  pesanAutoTimer = setInterval(() => {
+    sliderIdx = (sliderIdx + 1) % pesanData.length;
+    updateSlider();
+  }, 4500);
+}
+function stopPesanAuto() {
+  if (pesanAutoTimer) clearInterval(pesanAutoTimer);
+}
+startPesanAuto();
+
+// ===== SWIPE / USAP UNTUK PESAN & KESAN =====
+const pesanSlider = $('pesanSlider');
+let pesanTouchStartX = 0;
+let pesanTouchStartY = 0;
+let pesanTouchDeltaX = 0;
+let pesanIsDragging = false;
+
+pesanSlider.addEventListener('touchstart', e => {
+  pesanTouchStartX = e.touches[0].clientX;
+  pesanTouchStartY = e.touches[0].clientY;
+  pesanTouchDeltaX = 0;
+  pesanIsDragging = true;
+  stopPesanAuto();
+  pesanTrack.style.transition = 'none';
+}, { passive: true });
+
+pesanSlider.addEventListener('touchmove', e => {
+  if (!pesanIsDragging) return;
+  pesanTouchDeltaX = e.touches[0].clientX - pesanTouchStartX;
+  const baseOffset = -sliderIdx * cardWidth();
+  pesanTrack.style.transform = `translateX(${baseOffset + pesanTouchDeltaX}px)`;
+}, { passive: true });
+
+pesanSlider.addEventListener('touchend', () => {
+  pesanIsDragging = false;
+  pesanTrack.style.transition = '';
+  const threshold = 50;
+  if (pesanTouchDeltaX < -threshold) {
+    sliderIdx = Math.min(sliderIdx + 1, pesanData.length - 1);
+  } else if (pesanTouchDeltaX > threshold) {
+    sliderIdx = Math.max(sliderIdx - 1, 0);
+  }
+  updateSlider();
+  startPesanAuto();
+});
 
     // ===== LIGHTBOX GALERI: buka, navigasi, geser (swipe) =====
     let currentAlbum = null;
